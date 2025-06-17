@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS2 Economy Helper</title>
+  <style>
+    .money-buttons button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>CS2 Economy Decision Helper</h2>
+
+  <!-- === User Input Form Section === -->
+  <form id="econ-form">
+    <!-- Team Side Input -->
+    <label>Side:
+      <select name="side" id="side">
+        <option value="T">Terrorist</option>
+        <option value="CT">Counter-Terrorist</option>
+      </select>
+    </label>
+    <br/><br/>
+
+    <!-- Money Input and Buttons -->
+    <label>Money:</label>
+    <input type="number" name="money" id="money" value="2500" />
+    <div class="money-buttons">
+      <button type="button" onclick="adjustMoney(500)">+500</button>
+      <button type="button" onclick="adjustMoney(1000)">+1000</button>
+      <button type="button" onclick="setMoney(0)">Reset</button>
+      <button type="button" onclick="setMoney(16000)">Max</button>
+    </div>
+    <br/><br/>
+
+    <!-- Loss Streak Input -->
+    <label>Loss Streak:
+      <select name="loss_streak" id="loss_streak">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5+</option>
+      </select>
+    </label>
+    <br/><br/>
+
+    <!-- Game Conditions -->
+    <label>Bomb Planted Last Round?
+      <input type="checkbox" name="bomb_planted" id="bomb_planted" />
+    </label>
+    <br/><br/>
+
+    <label>Saved Weapon?
+      <input type="checkbox" name="saved_weapon" id="saved_weapon" />
+    </label>
+    <br/><br/>
+
+    <label>Match Point / End of Half?
+      <input type="checkbox" name="end_game" id="end_game" />
+    </label>
+    <br/><br/>
+
+    <!-- Enemy Round Result -->
+    <label>Enemy Round Outcome:
+      <select name="enemy_recent_win_type" id="enemy_recent_win_type">
+        <option value="unknown">Unknown</option>
+        <option value="clean">Clean Win (4-5 survive)</option>
+        <option value="close">Close Win (1-2 survive)</option>
+        <option value="eco">Eco/Force Win</option>
+      </select>
+    </label>
+    <br/><br/>
+
+    <!-- Round Number Control -->
+    <label>Round Number:
+      <input type="number" name="round_number" id="round_number" value="1" min="1" max="24" />
+      <button type="button" onclick="nextRound()">Next Round</button>
+    </label>
+    <br/><br/>
+
+    <!-- Input Reuse Toggle -->
+    <label>
+      <input type="checkbox" id="reuse_last" checked />
+      Use Previous Inputs (memory)
+    </label>
+    <br/><br/>
+
+    <!-- Submit Button -->
+    <button type="submit">Get Buy Suggestion</button>
+  </form>
+
+  <!-- === Output Display Section === -->
+  <div id="result"></div>
+
+  <!-- === Logic & Script Section === -->
+  <script>
+    // Stores last used input state for reuse
+    const memory = {};
+
+    // Adjusts money by specified amount
+    function adjustMoney(amount) {
+      const moneyField = document.getElementById('money');
+      moneyField.value = parseInt(moneyField.value || 0) + amount;
+    }
+
+    // Sets money to a specific value
+    function setMoney(amount) {
+      document.getElementById('money').value = amount;
+    }
+
+    // Increments the round number
+    function nextRound() {
+      const roundInput = document.getElementById('round_number');
+      roundInput.value = parseInt(roundInput.value || 0) + 1;
+    }
+
+    // Saves current form values into memory object
+    function saveState() {
+      memory.side = document.getElementById('side').value;
+      memory.loss_streak = document.getElementById('loss_streak').value;
+      memory.bomb_planted = document.getElementById('bomb_planted').checked;
+      memory.saved_weapon = document.getElementById('saved_weapon').checked;
+      memory.end_game = document.getElementById('end_game').checked;
+      memory.enemy_recent_win_type = document.getElementById('enemy_recent_win_type').value;
+    }
+
+    // Loads last used values from memory
+    function loadState() {
+      if (!document.getElementById('reuse_last').checked) return;
+
+      if (memory.side) document.getElementById('side').value = memory.side;
+      if (memory.loss_streak) document.getElementById('loss_streak').value = memory.loss_streak;
+      document.getElementById('bomb_planted').checked = memory.bomb_planted || false;
+      document.getElementById('saved_weapon').checked = memory.saved_weapon || false;
+      document.getElementById('end_game').checked = memory.end_game || false;
+
+      if (memory.enemy_recent_win_type) {
+        document.getElementById('enemy_recent_win_type').value = memory.enemy_recent_win_type;
+      }
+    }
+
+    // Core suggestion logic based on CS2 economy strategy
+    function suggestBuy(data) {
+      const loadout = [];
+      let strategy = 'Full Buy';
+      let projectedMoney = 0;
+
+      // Money thresholds
+      const fullBuyThreshold = 4700;
+      const halfBuyThreshold = 2500;
+
+      // Loadout presets
+      const fullBuyItems = ["Rifle (AK/M4)", "Kevlar + Helmet", "Full Utility"];
+      const halfBuyItems = ["SMG / Deagle", "Kevlar"];
+      const ecoItems = ["Glock / USP", "Save for next"];
+
+      // Determine strategy based on logic
+      if (data.money >= fullBuyThreshold || data.match_point) {
+        strategy = 'Full Buy';
+        loadout.push(...fullBuyItems);
+
+      } else if (
+        (data.money >= halfBuyThreshold && data.loss_streak >= 2) ||
+        (data.bomb_planted && data.side === 'T') ||
+        data.saved_weapon ||
+        data.enemy_recent_win_type === 'close'
+      ) {
+        strategy = 'Force Buy';
+        loadout.push(...halfBuyItems);
+
+      } else {
+        strategy = 'Eco';
+        loadout.push(...ecoItems);
+      }
+
+      // Calculate projected money next round
+      let baseLoss = 1400 + 500 * data.loss_streak;
+      if (data.loss_streak >= 5) baseLoss = 3400;
+      if (data.bomb_planted && data.side === 'T') baseLoss += 800;
+
+      projectedMoney = data.money + baseLoss;
+
+      return {
+        strategy: strategy,
+        recommended_loadout: loadout,
+        projected_next_round_money: projectedMoney
+      };
+    }
+
+    // Form submission handler and suggestion display logic
+    document.getElementById('econ-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Convert form data into usable values
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      // Parse types and condition flags
+      data.money = parseInt(data.money);
+      data.loss_streak = parseInt(data.loss_streak);
+      data.round_number = parseInt(data.round_number);
+      data.bomb_planted = formData.get("bomb_planted") === 'on';
+      data.saved_weapon = formData.get("saved_weapon") === 'on';
+      data.match_point = formData.get("end_game") === 'on';
+      data.end_of_half = data.round_number >= 11 || data.match_point;
+
+      // Save current state for memory use
+      saveState();
+
+      // Get suggestion from logic engine
+      const result = suggestBuy(data);
+
+      // Format and show result
+      const output = `
+        <h3>Buy Suggestion</h3>
+        <p><strong>Strategy:</strong> ${result.strategy}</p>
+        <p><strong>Loadout:</strong><br/> - ${result.recommended_loadout.join('<br/> - ')}</p>
+        <p><strong>Projected Next Round $:</strong> ${result.projected_next_round_money}</p>
+      `;
+
+      document.getElementById('result').innerHTML = output;
+    });
+
+    // On page load, apply saved state if enabled
+    window.onload = loadState;
+  </script>
+</body>
+</html>
