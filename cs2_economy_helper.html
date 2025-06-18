@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS2 Economy Helper</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Rajdhani', monospace;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(53, 107, 255, 0.03) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.01) 49%, rgba(255, 255, 255, 0.01) 51%, transparent 52%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ff6b35, transparent);
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #ff6b35;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin: 0;
+      text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+      position: relative;
+    }
+    
+    .header .subtitle {
+      font-size: 1rem;
+      color: #888;
+      margin-top: 5px;
+      letter-spacing: 1px;
+    }
+    
+    .mode-selector {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 30px;
+      background: rgba(20, 20, 20, 0.8);
+      padding: 4px;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 15px 25px;
+      background: transparent;
+      color: #aaa;
+      border: none;
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      border-radius: 4px;
+    }
+    
+    .mode-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #ff6b35, #ff8555);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 4px;
+    }
+    
+    .mode-btn.active {
+      color: #000;
+    }
+    
+    .mode-btn.active::before {
+      opacity: 1;
+    }
+    
+    .mode-btn span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .survey-mode, .manual-mode {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .survey-mode.active, .manual-mode.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .progress-container {
+      margin-bottom: 25px;
+      background: rgba(20, 20, 20, 0.6);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 107, 53, 0.1);
+    }
+    
+    .progress-label {
+      font-size: 14px;
+      color: #999;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(40, 40, 40, 0.8);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b35, #ff8555);
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+    }
+    
+    .question-container {
+      background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(20, 20, 20, 0.9));
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .question-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.05), transparent);
+      animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .question {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .quick-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .quick-btn {
+      padding: 15px 25px;
+      background: linear-gradient(135deg, rgba(60, 60, 60, 0.8), rgba(40, 40, 40, 0.8));
+      color: #e0e0e0;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+    }
+    
+    .quick-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .quick-btn:hover {
+      background: linear-gradient(135deg, rgba(80, 80, 80, 0.9), rgba(60, 60, 60, 0.9));
+      border-color: rgba(255, 107, 53, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+    }
+    
+    .quick-btn:hover::before {
+      left: 100%;
+    }
+    
+    .result-section {
+      background: linear-gradient(135deg, rgba(25, 25, 25, 0.9), rgba(15, 15, 15, 0.9));
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    .result-section h3 {
+      color: #ff6b35;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .strategy-full { 
+      color: #4CAF50; 
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    }
+    .strategy-force { 
+      color: #FFC107; 
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+    .strategy-eco { 
+      color: #F44336; 
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(244, 67, 54, 0.3);
+    }
+    
+    .result-section ul {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px 20px;
+      border-radius: 6px;
+      border-left: 3px solid #ff6b35;
+    }
+    
+    .result-section li {
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+    
+    .reset-btn {
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #ff6b35, #ff8555);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    }
+    
+    .reset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+    
+    .manual-mode {
+      background: linear-gradient(135deg, rgba(25, 25, 25, 0.9), rgba(15, 15, 15, 0.9));
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ccc;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 14px;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      background: rgba(40, 40, 40, 0.8);
+      color: #fff;
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #ff6b35;
+      box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+    }
+    
+    .money-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .money-btn {
+      padding: 8px 15px;
+      background: linear-gradient(135deg, rgba(60, 60, 60, 0.8), rgba(40, 40, 40, 0.8));
+      color: #e0e0e0;
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Rajdhani', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .money-btn:hover {
+      background: linear-gradient(135deg, rgba(80, 80, 80, 0.9), rgba(60, 60, 60, 0.9));
+      border-color: rgba(255, 107, 53, 0.6);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .question {
+        font-size: 1.4rem;
+      }
+      
+      .quick-options {
+        gap: 10px;
+      }
+      
+      .quick-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      .money-controls {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>CS2 Fast Economy Helper</h1>
+      <div class="subtitle">Economy Assistant</div>
+    </div>
+    
+    <div class="mode-selector">
+      <button class="mode-btn active" onclick="setMode('survey')">
+        <span>Quick Survey</span>
+      </button>
+      <button class="mode-btn" onclick="setMode('manual')">
+        <span>Manual Input</span>
+      </button>
+    </div>
+
+    <!-- Survey Mode -->
+    <div id="survey-mode" class="survey-mode active">
+      <div class="progress-container">
+        <div class="progress-label">Progress</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+      
+      <div class="question-container" id="question-container">
+        <div class="question" id="question-text">Click "Start Round" to begin</div>
+        <div class="quick-options" id="quick-options">
+          <button class="quick-btn reset-btn" onclick="startSurvey()">Start Round</button>
+        </div>
+      </div>
+      
+      <div id="survey-result" class="result-section" style="display: none;"></div>
+    </div>
+
+    <!-- Manual Mode -->
+    <div id="manual-mode" class="manual-mode">
+      <form id="econ-form">
+        <div class="form-group">
+          <label>Side:</label>
+          <select name="side" id="side">
+            <option value="T">Terrorist (T)</option>
+            <option value="CT">Counter-Terrorist (CT)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Current Money:</label>
+          <input type="number" name="money" id="money" value="2500" />
+          <div class="money-controls">
+            <button type="button" class="money-btn" onclick="adjustMoney(200)">+200</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(500)">+500</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(1000)">+1000</button>
+            <button type="button" class="money-btn" onclick="setMoney(16000)">Max</button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Loss Streak:</label>
+          <select name="loss_streak" id="loss_streak">
+            <option value="0">0 Losses</option>
+            <option value="1">1 Loss</option>
+            <option value="2">2 Losses</option>
+            <option value="3">3 Losses</option>
+            <option value="4">4 Losses</option>
+            <option value="5">5+ Losses</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Score - CT:</label>
+            <input type="number" id="ct_score" name="ct_score" value="0" min="0" max="15" />
+          </div>
+          
+          <div class="form-group">
+            <label>Score - T:</label>
+            <input type="number" id="t_score" name="t_score" value="0" min="0" max="15" />
+          </div>
+        </div>
+        
+        <button type="submit" class="reset-btn">Get Suggestion</button>
+      </form>
+      
+      <div id="manual-result" class="result-section" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    let surveyData = {};
+    let currentQuestion = 0;
+    
+    const questions = [
+      {
+        text: "What's your current money?",
+        type: "money",
+        options: [
+          { text: "$800-1500", value: 1150 },
+          { text: "$1500-2000", value: 1750 },
+          { text: "$2000-2500", value: 2250 },
+          { text: "$2500-3500", value: 3000 },
+          { text: "$3500-4700", value: 4100 },
+          { text: "$4700-6000", value: 5350 },
+          { text: "$6000+", value: 8000 }
+        ]
+      },
+      {
+        text: "Which side?",
+        type: "side",
+        options: [
+          { text: "T", value: "T" },
+          { text: "CT", value: "CT" }
+        ]
+      },
+      {
+        text: "Loss streak?",
+        type: "loss_streak",
+        options: [
+          { text: "0", value: 0 },
+          { text: "1", value: 1 },
+          { text: "2", value: 2 },
+          { text: "3+", value: 3 }
+        ]
+      },
+      {
+        text: "Match situation?",
+        type: "situation",
+        options: [
+          { text: "Normal", value: "normal" },
+          { text: "Match Point", value: "match_point" },
+          { text: "Must Win", value: "must_win" }
+        ]
+      },
+      {
+        text: "How did last round end?",
+        type: "last_round",
+        options: []
+      }
+    ];
+    
+    function setMode(mode) {
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.survey-mode, .manual-mode').forEach(div => div.classList.remove('active'));
+      
+      if (mode === 'survey') {
+        document.querySelector('.mode-btn').classList.add('active');
+        document.getElementById('survey-mode').classList.add('active');
+      } else {
+        document.querySelectorAll('.mode-btn')[1].classList.add('active');
+        document.getElementById('manual-mode').classList.add('active');
+      }
+    }
+    
+    function startSurvey() {
+      surveyData = {};
+      currentQuestion = 0;
+      showQuestion();
+    }
+    
+    function showQuestion() {
+      if (currentQuestion >= questions.length) {
+        showSurveyResult();
+        return;
+      }
+      
+      let question = questions[currentQuestion];
+      
+      if (question.type === 'last_round') {
+        const lossStreak = surveyData.loss_streak || 0;
+        
+        if (lossStreak === 0) {
+          question = {
+            text: "How did we win last round?",
+            type: "last_round",
+            options: [
+              { text: "We won easily", value: "we_won_easy" },
+              { text: "We won close", value: "we_won_close" }
+            ]
+          };
+        } else {
+          question = {
+            text: "How did they win last round?",
+            type: "last_round",
+            options: [
+              { text: "They won easily", value: "enemy_won_easy" },
+              { text: "They won close", value: "enemy_won_close" }
+            ]
+          };
+        }
+      }
+      
+      const progress = (currentQuestion / questions.length) * 100;
+      
+      document.getElementById('progress-fill').style.width = progress + '%';
+      document.getElementById('question-text').textContent = question.text;
+      
+      const optionsHtml = question.options.map(option => 
+        `<button class="quick-btn" onclick="answerQuestion('${question.type}', '${option.value}')">${option.text}</button>`
+      ).join('');
+      
+      document.getElementById('quick-options').innerHTML = optionsHtml;
+    }
+    
+    function answerQuestion(type, value) {
+      if (!isNaN(value) && value !== '') {
+        value = parseInt(value);
+      }
+      
+      surveyData[type] = value;
+      currentQuestion++;
+      showQuestion();
+    }
+    
+    function showSurveyResult() {
+      document.getElementById('progress-fill').style.width = '100%';
+      
+      const suggestion = calculateSuggestion(surveyData);
+      
+      const resultHtml = `
+        <h3>Buy Suggestion</h3>
+        <p><strong>Strategy:</strong> <span class="strategy-${suggestion.strategy.toLowerCase()}">${suggestion.strategy}</span></p>
+        <p><strong>Recommended:</strong></p>
+        <ul>${suggestion.loadout.map(item => `<li>${item}</li>`).join('')}</ul>
+        <p><strong>Reasoning:</strong> ${suggestion.reasoning}</p>
+        <button class="reset-btn" onclick="resetSurvey()">Next Round</button>
+      `;
+      
+      document.getElementById('question-container').style.display = 'none';
+      document.getElementById('survey-result').style.display = 'block';
+      document.getElementById('survey-result').innerHTML = resultHtml;
+    }
+    
+    function resetSurvey() {
+      surveyData = {};
+      currentQuestion = 0;
+      
+      document.getElementById('survey-result').style.display = 'none';
+      document.getElementById('question-container').style.display = 'flex';
+      
+      document.getElementById('progress-fill').style.width = '0%';
+      
+      showQuestion();
+    }
+    
+    function calculateSuggestion(data) {
+      let strategy = 'ECO';
+      let loadout = [];
+      let reasoning = '';
+      
+      const money = data.money || 0;
+      const lossStreak = data.loss_streak || 0;
+      const situation = data.situation || 'normal';
+      const lastRound = data.last_round || '';
+      
+      if (money >= 4700 || situation === 'match_point') {
+        strategy = 'FULL';
+        loadout = ['Rifle (AK/M4)', 'Full Armor', 'Full Utility', 'Defuse Kit (CT)'];
+        reasoning = money >= 4700 ? 'You have enough for full buy' : 'Match point - must buy';
+      } else if (
+        (money >= 2000 && lossStreak >= 2) ||
+        situation === 'must_win' ||
+        lastRound === 'enemy_won_close' ||
+        lastRound === 'we_won_close'
+      ) {
+        strategy = 'FORCE';
+        loadout = ['SMG/Deagle', 'Armor', 'Limited Utility'];
+        if (lossStreak >= 2) reasoning = 'Loss bonus will help next round';
+        else if (lastRound === 'enemy_won_close') reasoning = 'Enemy might be low on money';
+        else if (lastRound === 'we_won_close') reasoning = 'Team might need to re-buy utility';
+        else reasoning = 'Must win this round';
+      } else {
+        strategy = 'ECO';
+        loadout = ['Pistol', 'Maybe Armor', 'Save Money'];
+        if (lastRound === 'enemy_won_easy') reasoning = 'Enemy likely has full buys - save for better round';
+        else reasoning = 'Save for next round full buy';
+      }
+      
+      return { strategy, loadout, reasoning };
+    }
+    
+    function adjustMoney(amount) {
+      const moneyField = document.getElementById('money');
+      moneyField.value = parseInt(moneyField.value || 0) + amount;
+    }
+    
+    function setMoney(amount) {
+      document.getElementById('money').value = amount;
+    }
+    
+    document.getElementById('econ-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      
+      data.money = parseInt(data.money);
+      data.loss_streak = parseInt(data.loss_streak);
+      data.ct_score = parseInt(data.ct_score);
+      data.t_score = parseInt(data.t_score);
+      
+      if (data.ct_score === 15 || data.t_score === 15) {
+        data.situation = 'match_point';
+      } else if (Math.abs(data.ct_score - data.t_score) >= 5) {
+        data.situation = 'must_win';
+      } else {
+        data.situation = 'normal';
+      }
+      
+      const suggestion = calculateSuggestion(data);
+      
+      const resultHtml = `
+        <h3>Buy Suggestion</h3>
+        <p><strong>Strategy:</strong> <span class="strategy-${suggestion.strategy.toLowerCase()}">${suggestion.strategy}</span></p>
+        <p><strong>Recommended:</strong></p>  
+        <ul>${suggestion.loadout.map(item => `<li>${item}</li>`).join('')}</ul>
+        <p><strong>Reasoning:</strong> ${suggestion.reasoning}</p>
+      `;
+      
+      document.getElementById('manual-result').style.display = 'block';
+      document.getElementById('manual-result').innerHTML = resultHtml;
+    });
+  </script>
+</body>
+</html>
