@@ -3,239 +3,482 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CS2 Economy Helper</title>
+  <title>CS2 Fast Economy Helper</title>
   <style>
-    .money-buttons button {
-      margin-right: 5px;
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #1a1a1a;
+      color: #fff;
     }
-    .memory-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    
+    .mode-selector {
+      margin-bottom: 20px;
+      text-align: center;
     }
-    .hidden {
+    
+    .mode-btn {
+      padding: 10px 20px;
+      margin: 0 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .mode-btn.active {
+      background-color: #ff6b35;
+    }
+    
+    .survey-mode {
       display: none;
+    }
+    
+    .survey-mode.active {
+      display: block;
+    }
+    
+    .question-container {
+      background-color: #2a2a2a;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .question {
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
+    
+    .quick-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .quick-btn {
+      padding: 15px 25px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      min-width: 100px;
+    }
+    
+    .quick-btn:hover {
+      background-color: #555;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #ff6b35;
+      transition: width 0.3s ease;
+    }
+    
+    .result-section {
+      background-color: #2a2a2a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    
+    .strategy-full { color: #4CAF50; }
+    .strategy-force { color: #FFC107; }
+    .strategy-eco { color: #F44336; }
+    
+    .reset-btn {
+      padding: 10px 20px;
+      background-color: #ff6b35;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    
+    .manual-mode {
+      display: none;
+    }
+    
+    .manual-mode.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .form-group input, .form-group select {
+      padding: 8px;
+      border-radius: 3px;
+      border: 1px solid #444;
+      background-color: #333;
+      color: white;
+    }
+    
+    .money-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 5px;
+    }
+    
+    .money-btn {
+      padding: 5px 10px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h2>CS2 Economy Decision Helper</h2>
+  <h1>CS2 Fast Economy Helper</h1>
+  
+  <div class="mode-selector">
+    <button class="mode-btn active" onclick="setMode('survey')">Quick Survey</button>
+    <button class="mode-btn" onclick="setMode('manual')">Manual Input</button>
+  </div>
 
-  <!-- === User Input Form Section === -->
-  <form id="econ-form">
-    <!-- Team Side Input -->
-    <label>Which side are you playing?
-      <select name="side" id="side" onchange="toggleBombPlanted()">
-        <option value="T">Terrorist (T)</option>
-        <option value="CT">Counter-Terrorist (CT)</option>
-      </select>
-    </label>
-    <br/><br/>
-
-    <!-- Score Input Instead of Round/Match Point -->
-    <label>Current score:
-      CT <input type="number" id="ct_score" name="ct_score" value="0" min="0" max="15" />
-      T <input type="number" id="t_score" name="t_score" value="0" min="0" max="15" />
-    </label>
-    <br/><br/>
-
-    <!-- Money Input and Buttons -->
-    <label>Current money:
-      <input type="number" name="money" id="money" value="2500" />
-    </label>
-    <div class="money-buttons">
-      <button type="button" onclick="adjustMoney(200)">+200</button>
-      <button type="button" onclick="adjustMoney(500)">+500</button>
-      <button type="button" onclick="adjustMoney(1000)">+1000</button>
-      <button type="button" onclick="setMoney(0)">Reset</button>
-      <button type="button" onclick="setMoney(16000)">Max</button>
+  <!-- Survey Mode -->
+  <div id="survey-mode" class="survey-mode active">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
     </div>
-    <br/><br/>
-
-    <!-- Loss Streak Input -->
-    <label>How many rounds in a row have you lost?
-      <select name="loss_streak" id="loss_streak">
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5 or more</option>
-      </select>
-    </label>
-    <br/><br/>
-
-    <!-- Game Conditions -->
-    <label id="bomb-label">Did your team plant the bomb last round (T side)?
-      <input type="checkbox" name="bomb_planted" id="bomb_planted" />
-    </label>
-    <br/><br/>
-
-    <label>Did you save a weapon from the last round?
-      <input type="checkbox" name="saved_weapon" id="saved_weapon" />
-    </label>
-    <br/><br/>
-
-    <!-- Enemy Round Result -->
-    <label>How did the enemy win their last round?
-      <select name="enemy_recent_win_type" id="enemy_recent_win_type">
-        <option value="unknown">Not sure</option>
-        <option value="clean">Clean Win (4-5 survived)</option>
-        <option value="close">Close Win (1-2 survived)</option>
-        <option value="eco">Eco/Force Buy Win</option>
-      </select>
-    </label>
-    <br/><br/>
-
-    <!-- Input Reuse Toggle -->
-    <div class="memory-controls">
-      <label for="reuse_last">Remember my last inputs</label>
-      <input type="checkbox" id="reuse_last" checked />
-      <button type="button" onclick="clearMemory()">Clear Memory</button>
+    
+    <div class="question-container" id="question-container">
+      <div class="question" id="question-text">Click "Start Round" to begin</div>
+      <div class="quick-options" id="quick-options">
+        <button class="quick-btn reset-btn" onclick="startSurvey()">Start Round</button>
+      </div>
     </div>
-    <br/><br/>
+    
+    <div id="survey-result" class="result-section" style="display: none;"></div>
+  </div>
 
-    <!-- Submit Button -->
-    <button type="submit">Get Buy Suggestion</button>
-  </form>
+  <!-- Manual Mode -->
+  <div id="manual-mode" class="manual-mode">
+    <form id="econ-form">
+      <div class="form-group">
+        <label>Side:</label>
+        <select name="side" id="side">
+          <option value="T">Terrorist (T)</option>
+          <option value="CT">Counter-Terrorist (CT)</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Current Money:</label>
+        <input type="number" name="money" id="money" value="2500" />
+        <div class="money-controls">
+          <button type="button" class="money-btn" onclick="adjustMoney(200)">+200</button>
+          <button type="button" class="money-btn" onclick="adjustMoney(500)">+500</button>
+          <button type="button" class="money-btn" onclick="adjustMoney(1000)">+1000</button>
+          <button type="button" class="money-btn" onclick="setMoney(16000)">Max</button>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Loss Streak:</label>
+        <select name="loss_streak" id="loss_streak">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5+</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Score - CT:</label>
+        <input type="number" id="ct_score" name="ct_score" value="0" min="0" max="15" />
+      </div>
+      
+      <div class="form-group">
+        <label>Score - T:</label>
+        <input type="number" id="t_score" name="t_score" value="0" min="0" max="15" />
+      </div>
+      
+      <button type="submit" class="reset-btn">Get Suggestion</button>
+    </form>
+    
+    <div id="manual-result" class="result-section" style="display: none;"></div>
+  </div>
 
-  <!-- === Output Display Section === -->
-  <div id="result"></div>
-
-  <!-- === Logic & Script Section === -->
   <script>
-    const memory = {};
-
+    let surveyData = {};
+    let currentQuestion = 0;
+    
+    const questions = [
+      {
+        text: "What's your current money?",
+        type: "money",
+        options: [
+          { text: "$800-1500", value: 1150 },
+          { text: "$1500-2000", value: 1750 },
+          { text: "$2000-2500", value: 2250 },
+          { text: "$2500-3500", value: 3000 },
+          { text: "$3500-4700", value: 4100 },
+          { text: "$4700-6000", value: 5350 },
+          { text: "$6000+", value: 8000 }
+        ]
+      },
+      {
+        text: "Which side?",
+        type: "side",
+        options: [
+          { text: "T", value: "T" },
+          { text: "CT", value: "CT" }
+        ]
+      },
+      {
+        text: "Loss streak?",
+        type: "loss_streak",
+        options: [
+          { text: "0", value: 0 },
+          { text: "1", value: 1 },
+          { text: "2", value: 2 },
+          { text: "3+", value: 3 }
+        ]
+      },
+      {
+        text: "Match situation?",
+        type: "situation",
+        options: [
+          { text: "Normal", value: "normal" },
+          { text: "Match Point", value: "match_point" },
+          { text: "Must Win", value: "must_win" }
+        ]
+      },
+      {
+        text: "How did last round end?", // This will be dynamically changed
+        type: "last_round",
+        options: [] // This will be dynamically populated
+      }
+    ];
+    
+    function setMode(mode) {
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.survey-mode, .manual-mode').forEach(div => div.classList.remove('active'));
+      
+      if (mode === 'survey') {
+        document.querySelector('.mode-btn').classList.add('active');
+        document.getElementById('survey-mode').classList.add('active');
+      } else {
+        document.querySelectorAll('.mode-btn')[1].classList.add('active');
+        document.getElementById('manual-mode').classList.add('active');
+      }
+    }
+    
+    function startSurvey() {
+      surveyData = {};
+      currentQuestion = 0;
+      showQuestion();
+    }
+    
+    function showQuestion() {
+      if (currentQuestion >= questions.length) {
+        showSurveyResult();
+        return;
+      }
+      
+      let question = questions[currentQuestion];
+      
+      // Dynamic question logic for last round based on loss streak
+      if (question.type === 'last_round') {
+        const lossStreak = surveyData.loss_streak || 0;
+        
+        if (lossStreak === 0) {
+          // We won last round
+          question = {
+            text: "How did we win last round?",
+            type: "last_round",
+            options: [
+              { text: "We won easily", value: "we_won_easy" },
+              { text: "We won close", value: "we_won_close" }
+            ]
+          };
+        } else {
+          // We lost last round (on loss streak)
+          question = {
+            text: "How did they win last round?",
+            type: "last_round",
+            options: [
+              { text: "They won easily", value: "enemy_won_easy" },
+              { text: "They won close", value: "enemy_won_close" }
+            ]
+          };
+        }
+      }
+      
+      const progress = (currentQuestion / questions.length) * 100;
+      
+      document.getElementById('progress-fill').style.width = progress + '%';
+      document.getElementById('question-text').textContent = question.text;
+      
+      const optionsHtml = question.options.map(option => 
+        `<button class="quick-btn" onclick="answerQuestion('${question.type}', '${option.value}')">${option.text}</button>`
+      ).join('');
+      
+      document.getElementById('quick-options').innerHTML = optionsHtml;
+    }
+    
+    function answerQuestion(type, value) {
+      // Convert string numbers back to numbers
+      if (!isNaN(value) && value !== '') {
+        value = parseInt(value);
+      }
+      
+      surveyData[type] = value;
+      currentQuestion++;
+      showQuestion();
+    }
+    
+    function showSurveyResult() {
+      document.getElementById('progress-fill').style.width = '100%';
+      
+      const suggestion = calculateSuggestion(surveyData);
+      
+      const resultHtml = `
+        <h3>Buy Suggestion</h3>
+        <p><strong>Strategy:</strong> <span class="strategy-${suggestion.strategy.toLowerCase()}">${suggestion.strategy}</span></p>
+        <p><strong>Recommended:</strong></p>
+        <ul>${suggestion.loadout.map(item => `<li>${item}</li>`).join('')}</ul>
+        <p><strong>Reasoning:</strong> ${suggestion.reasoning}</p>
+        <button class="reset-btn" onclick="resetSurvey()">Next Round</button>
+      `;
+      
+      document.getElementById('question-container').style.display = 'none';
+      document.getElementById('survey-result').style.display = 'block';
+      document.getElementById('survey-result').innerHTML = resultHtml;
+    }
+    
+    function resetSurvey() {
+      // Reset all state
+      surveyData = {};
+      currentQuestion = 0;
+      
+      // Hide result section and show question container
+      document.getElementById('survey-result').style.display = 'none';
+      document.getElementById('question-container').style.display = 'flex';
+      
+      // Reset progress bar
+      document.getElementById('progress-fill').style.width = '0%';
+      
+      // Show first question
+      showQuestion();
+    }
+    
+    function calculateSuggestion(data) {
+      let strategy = 'ECO';
+      let loadout = [];
+      let reasoning = '';
+      
+      const money = data.money || 0;
+      const lossStreak = data.loss_streak || 0;
+      const situation = data.situation || 'normal';
+      const lastRound = data.last_round || '';
+      
+      // Decision logic
+      if (money >= 4700 || situation === 'match_point') {
+        strategy = 'FULL';
+        loadout = ['Rifle (AK/M4)', 'Full Armor', 'Full Utility', 'Defuse Kit (CT)'];
+        reasoning = money >= 4700 ? 'You have enough for full buy' : 'Match point - must buy';
+      } else if (
+        (money >= 2000 && lossStreak >= 2) ||
+        situation === 'must_win' ||
+        lastRound === 'enemy_won_close' ||
+        lastRound === 'we_won_close'
+      ) {
+        strategy = 'FORCE';
+        loadout = ['SMG/Deagle', 'Armor', 'Limited Utility'];
+        if (lossStreak >= 2) reasoning = 'Loss bonus will help next round';
+        else if (lastRound === 'enemy_won_close') reasoning = 'Enemy might be low on money';
+        else if (lastRound === 'we_won_close') reasoning = 'Team might need to re-buy utility';
+        else reasoning = 'Must win this round';
+      } else {
+        strategy = 'ECO';
+        loadout = ['Pistol', 'Maybe Armor', 'Save Money'];
+        if (lastRound === 'enemy_won_easy') reasoning = 'Enemy likely has full buys - save for better round';
+        else reasoning = 'Save for next round full buy';
+      }
+      
+      return { strategy, loadout, reasoning };
+    }
+    
+    // Manual mode functions
     function adjustMoney(amount) {
       const moneyField = document.getElementById('money');
       moneyField.value = parseInt(moneyField.value || 0) + amount;
     }
-
+    
     function setMoney(amount) {
       document.getElementById('money').value = amount;
     }
-
-    function toggleBombPlanted() {
-      const side = document.getElementById('side').value;
-      const bombLabel = document.getElementById('bomb-label');
-      bombLabel.style.display = (side === 'T') ? 'block' : 'none';
-    }
-
-    function saveState() {
-      memory.side = document.getElementById('side').value;
-      memory.loss_streak = document.getElementById('loss_streak').value;
-      memory.bomb_planted = document.getElementById('bomb_planted').checked;
-      memory.saved_weapon = document.getElementById('saved_weapon').checked;
-      memory.enemy_recent_win_type = document.getElementById('enemy_recent_win_type').value;
-      memory.ct_score = document.getElementById('ct_score').value;
-      memory.t_score = document.getElementById('t_score').value;
-    }
-
-    function loadState() {
-      if (!document.getElementById('reuse_last').checked) return;
-
-      if (memory.side) document.getElementById('side').value = memory.side;
-      if (memory.loss_streak) document.getElementById('loss_streak').value = memory.loss_streak;
-      document.getElementById('bomb_planted').checked = memory.bomb_planted || false;
-      document.getElementById('saved_weapon').checked = memory.saved_weapon || false;
-
-      if (memory.enemy_recent_win_type) {
-        document.getElementById('enemy_recent_win_type').value = memory.enemy_recent_win_type;
-      }
-
-      if (memory.ct_score) document.getElementById('ct_score').value = memory.ct_score;
-      if (memory.t_score) document.getElementById('t_score').value = memory.t_score;
-
-      toggleBombPlanted();
-    }
-
-    function clearMemory() {
-      for (let key in memory) {
-        delete memory[key];
-      }
-      alert("Saved inputs have been cleared.");
-    }
-
-    function suggestBuy(data) {
-      const loadout = [];
-      let strategy = 'Full Buy';
-      let projectedMoney = 0;
-
-      const fullBuyThreshold = 4700;
-      const halfBuyThreshold = 2500;
-
-      const fullBuyItems = ["Rifle (AK/M4)", "Kevlar + Helmet", "Full Utility"];
-      const halfBuyItems = ["SMG / Deagle", "Kevlar"];
-      const ecoItems = ["Glock / USP", "Save for next"];
-
-      const totalRounds = data.ct_score + data.t_score;
-      const match_point = data.ct_score === 15 || data.t_score === 15;
-      const end_of_half = totalRounds >= 15;
-
-      if (data.money >= fullBuyThreshold || match_point) {
-        strategy = 'Full Buy';
-        loadout.push(...fullBuyItems);
-      } else if (
-        (data.money >= halfBuyThreshold && data.loss_streak >= 2) ||
-        (data.bomb_planted && data.side === 'T') ||
-        data.saved_weapon ||
-        data.enemy_recent_win_type === 'close'
-      ) {
-        strategy = 'Force Buy';
-        loadout.push(...halfBuyItems);
-      } else {
-        strategy = 'Eco';
-        loadout.push(...ecoItems);
-      }
-
-      let estimatedSpend = 0;
-      if (strategy === 'Full Buy') estimatedSpend = 4700;
-      else if (strategy === 'Force Buy') estimatedSpend = 2500;
-
-      let remainingMoney = data.money - estimatedSpend;
-      if (remainingMoney < 0) remainingMoney = 0;
-
-      let baseLoss = 1400 + 500 * data.loss_streak;
-      if (data.loss_streak >= 5) baseLoss = 3400;
-      if (data.bomb_planted && data.side === 'T') baseLoss += 800;
-
-      projectedMoney = remainingMoney + baseLoss;
-
-      return {
-        strategy: strategy,
-        recommended_loadout: loadout,
-        projected_next_round_money: projectedMoney
-      };
-    }
-
-    document.getElementById('econ-form').addEventListener('submit', function (e) {
+    
+    document.getElementById('econ-form').addEventListener('submit', function(e) {
       e.preventDefault();
-
+      
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-
+      
+      // Convert to proper types
       data.money = parseInt(data.money);
       data.loss_streak = parseInt(data.loss_streak);
-      data.bomb_planted = formData.get("bomb_planted") === 'on';
-      data.saved_weapon = formData.get("saved_weapon") === 'on';
       data.ct_score = parseInt(data.ct_score);
       data.t_score = parseInt(data.t_score);
-
-      saveState();
-
-      const result = suggestBuy(data);
-
-      const output = `
+      
+      // Determine situation
+      if (data.ct_score === 15 || data.t_score === 15) {
+        data.situation = 'match_point';
+      } else if (Math.abs(data.ct_score - data.t_score) >= 5) {
+        data.situation = 'must_win';
+      } else {
+        data.situation = 'normal';
+      }
+      
+      const suggestion = calculateSuggestion(data);
+      
+      const resultHtml = `
         <h3>Buy Suggestion</h3>
-        <p><strong>Strategy:</strong> ${result.strategy}</p>
-        <p><strong>Loadout:</strong><br/> - ${result.recommended_loadout.join('<br/> - ')}</p>
-        <p><strong>Projected Next Round $:</strong> ${result.projected_next_round_money}</p>
+        <p><strong>Strategy:</strong> <span class="strategy-${suggestion.strategy.toLowerCase()}">${suggestion.strategy}</span></p>
+        <p><strong>Recommended:</strong></p>
+        <ul>${suggestion.loadout.map(item => `<li>${item}</li>`).join('')}</ul>
+        <p><strong>Reasoning:</strong> ${suggestion.reasoning}</p>
       `;
-
-      document.getElementById('result').innerHTML = output;
+      
+      document.getElementById('manual-result').style.display = 'block';
+      document.getElementById('manual-result').innerHTML = resultHtml;
     });
-
-    window.onload = loadState;
   </script>
 </body>
 </html>
