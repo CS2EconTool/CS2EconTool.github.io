@@ -2,7 +2,6 @@
 
 import { handleSurvey, startSurvey } from './surveyLogic.js';
 import { handleManual } from './manualLogic.js';
-import { adjustMoney, setMoney } from './utils.js';
 
 // Mode toggle buttons
 const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');
