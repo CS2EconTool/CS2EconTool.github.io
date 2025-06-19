@@ -1,8 +1,6 @@
-// Main entry point — toggles modes and delegates to respective logic handlers
-
-import { handleSurvey, startSurvey } from "./surveyLogic.js";
-import { handleManual } from "./manualLogic.js";
-import { adjustMoney, setMoney } from "./utils.js";
+import { handleSurvey, startSurvey } from "./scripts/surveyLogic.js";
+import { handleManual } from "./scripts/manualLogic.js";
+import { adjustMoney, setMoney } from "./scripts/utils.js";
 
 // Mode toggle buttons
 const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');
@@ -24,13 +22,25 @@ function setMode(mode) {
   }
 }
 
-// Expose functions globally
-window.startSurvey = startSurvey;
-window.setMode = setMode;
+// 🔧 Attach all event listeners in script instead of inline
+document.addEventListener('DOMContentLoaded', () => {
+  // Mode switch buttons
+  surveyBtn.addEventListener('click', () => setMode('survey'));
+  manualBtn.addEventListener('click', () => setMode('manual'));
+
+  // Start survey button
+  const startBtn = document.querySelector('.reset-btn');
+  if (startBtn) {
+    startBtn.addEventListener('click', () => startSurvey());
+  }
+
+  // Utility buttons (money adjustments) handled in handleManual
+});
+
+// Expose utility for dev console debugging (optional)
 window.adjustMoney = adjustMoney;
 window.setMoney = setMoney;
 
-// Initialize logic
+// Init
 handleSurvey();
 handleManual();
-

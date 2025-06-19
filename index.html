@@ -14,8 +14,8 @@
     </div>
 
     <div class="mode-selector">
-      <button class="mode-btn active" onclick="setMode('survey')"><span>Quick Survey</span></button>
-      <button class="mode-btn" onclick="setMode('manual')"><span>Manual Input</span></button>
+      <button class="mode-btn survey-toggle active"><span>Quick Survey</span></button>
+      <button class="mode-btn manual-toggle"><span>Manual Input</span></button>
     </div>
 
     <div id="survey-mode" class="survey-mode active">
@@ -26,7 +26,7 @@
       <div class="question-container" id="question-container">
         <div class="question" id="question-text">Click "Start Round" to begin</div>
         <div class="quick-options" id="quick-options">
-          <button class="quick-btn reset-btn" onclick="startSurvey()">Start Round</button>
+          <button class="quick-btn reset-btn">Start Round</button>
         </div>
       </div>
       <div id="survey-result" class="result-section" style="display: none;"></div>
@@ -45,10 +45,10 @@
           <label for="money">Current Money:</label>
           <input type="number" name="money" id="money" value="2500" />
           <div class="money-controls">
-            <button type="button" class="money-btn" onclick="adjustMoney(200)">+200</button>
-            <button type="button" class="money-btn" onclick="adjustMoney(500)">+500</button>
-            <button type="button" class="money-btn" onclick="adjustMoney(1000)">+1000</button>
-            <button type="button" class="money-btn" onclick="setMoney(16000)">Max</button>
+            <button type="button" class="money-btn" data-adjust="200">+200</button>
+            <button type="button" class="money-btn" data-adjust="500">+500</button>
+            <button type="button" class="money-btn" data-adjust="1000">+1000</button>
+            <button type="button" class="money-btn" data-set="16000">Max</button>
           </div>
         </div>
         <div class="form-group">
@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <!-- JavaScript modules -->
-  <script type="module" src="./scripts/main.js"></script>
+  <!-- JavaScript entry point -->
+  <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
