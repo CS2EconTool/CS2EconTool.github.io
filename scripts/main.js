@@ -24,12 +24,13 @@ function setMode(mode) {
   }
 }
 
-// Expose necessary functions globally for HTML inline usage
+// Expose functions globally
 window.startSurvey = startSurvey;
 window.setMode = setMode;
 window.adjustMoney = adjustMoney;
 window.setMoney = setMoney;
 
-// Initialize both logics
+// Initialize logic
 handleSurvey();
 handleManual();
+
