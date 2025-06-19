@@ -1,13 +1,16 @@
-import { handleSurvey, startSurvey } from "./scripts/surveyLogic.js";
-import { handleManual } from "./scripts/manualLogic.js";
-import { adjustMoney, setMoney } from "./scripts/utils.js";
+import { handleSurvey, startSurvey } from "./surveyLogic.js";
+import { handleManual } from "./manualLogic.js";
+import { adjustMoney, setMoney } from "./utils.js";
 
-// Mode toggle buttons
-const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');
-const manualBtn = document.querySelector('.mode-btn:nth-child(2)');
+// DOM references
+const surveyBtn = document.querySelector('.survey-toggle');
+const manualBtn = document.querySelector('.manual-toggle');
 const surveyMode = document.getElementById('survey-mode');
 const manualMode = document.getElementById('manual-mode');
+const startSurveyBtn = document.querySelector('.reset-btn'); // Inside survey section
+const moneyButtons = document.querySelectorAll('.money-btn');
 
+// Switch between modes
 function setMode(mode) {
   if (mode === 'survey') {
     surveyMode.classList.add('active');
@@ -22,25 +25,23 @@ function setMode(mode) {
   }
 }
 
-// 🔧 Attach all event listeners in script instead of inline
-document.addEventListener('DOMContentLoaded', () => {
-  // Mode switch buttons
-  surveyBtn.addEventListener('click', () => setMode('survey'));
-  manualBtn.addEventListener('click', () => setMode('manual'));
+//  Hook up mode switch buttons
+surveyBtn.addEventListener('click', () => setMode('survey'));
+manualBtn.addEventListener('click', () => setMode('manual'));
 
-  // Start survey button
-  const startBtn = document.querySelector('.reset-btn');
-  if (startBtn) {
-    startBtn.addEventListener('click', () => startSurvey());
-  }
+//  Hook up Start Survey button
+startSurveyBtn.addEventListener('click', startSurvey);
 
-  // Utility buttons (money adjustments) handled in handleManual
+//  Hook up money controls in manual input mode
+moneyButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const adjust = btn.getAttribute('data-adjust');
+    const set = btn.getAttribute('data-set');
+    if (adjust) adjustMoney(parseInt(adjust));
+    if (set) setMoney(parseInt(set));
+  });
 });
 
-// Expose utility for dev console debugging (optional)
-window.adjustMoney = adjustMoney;
-window.setMoney = setMoney;
-
-// Init
+// Initialize logic for both modes
 handleSurvey();
 handleManual();
