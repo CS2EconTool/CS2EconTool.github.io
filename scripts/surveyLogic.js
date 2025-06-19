@@ -1,3 +1,4 @@
+// surveyLogic.js
 import { calculateSuggestion } from './utils.js';
 
 let surveyData = {};
@@ -121,6 +122,14 @@ window.resetSurvey = function () {
   document.getElementById('progress-fill').style.width = '0%';
   renderQuestion();
 };
+
+function startSurvey() {
+  surveyData = {};
+  currentQuestionIndex = 0;
+  document.getElementById('survey-result').style.display = 'none';
+  document.getElementById('question-container').style.display = 'flex';
+  renderQuestion();
+}
 
 export function handleSurvey() {
   // Reserved for future setup logic if needed
