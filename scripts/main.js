@@ -1,7 +1,8 @@
 // Main entry point — toggles modes and delegates to respective logic handlers
 
-import { handleSurvey } from "./scripts/surveyLogic.js";
+import { handleSurvey, startSurvey } from "./scripts/surveyLogic.js";
 import { handleManual } from "./scripts/manualLogic.js";
+import { adjustMoney, setMoney } from "./scripts/utils.js";
 
 // Mode toggle buttons
 const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');
@@ -23,14 +24,12 @@ function setMode(mode) {
   }
 }
 
-// Expose globally for HTML onclick
-window.setMode = setMode;
-
-// Initialize both logics
-handleSurvey();
-handleManual();
-
+// Expose necessary functions globally for HTML inline usage
 window.startSurvey = startSurvey;
 window.setMode = setMode;
 window.adjustMoney = adjustMoney;
 window.setMoney = setMoney;
+
+// Initialize both logics
+handleSurvey();
+handleManual();
