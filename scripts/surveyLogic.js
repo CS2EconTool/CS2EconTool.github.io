@@ -89,13 +89,6 @@ function renderQuestion() {
   ).join('');
 }
 
-window.answerSurvey = function (type, value) {
-  if (!isNaN(value)) value = parseInt(value);
-  surveyData[type] = value;
-  currentQuestionIndex++;
-  renderQuestion();
-};
-
 function showSurveyResult() {
   const suggestion = calculateSuggestion(surveyData);
   const resultBox = document.getElementById('survey-result');
@@ -114,6 +107,22 @@ function showSurveyResult() {
   resultBox.style.display = 'block';
 }
 
+function startSurvey() {
+  surveyData = {};
+  currentQuestionIndex = 0;
+  document.getElementById('survey-result').style.display = 'none';
+  document.getElementById('question-container').style.display = 'flex';
+  renderQuestion();
+}
+
+// Bind to global scope
+window.answerSurvey = function (type, value) {
+  if (!isNaN(value)) value = parseInt(value);
+  surveyData[type] = value;
+  currentQuestionIndex++;
+  renderQuestion();
+};
+
 window.resetSurvey = function () {
   surveyData = {};
   currentQuestionIndex = 0;
@@ -123,16 +132,9 @@ window.resetSurvey = function () {
   renderQuestion();
 };
 
-function startSurvey() {
-  surveyData = {};
-  currentQuestionIndex = 0;
-  document.getElementById('survey-result').style.display = 'none';
-  document.getElementById('question-container').style.display = 'flex';
-  renderQuestion();
-}
-
+// Module exports
 export function handleSurvey() {
-  // Reserved for future setup logic if needed
+  // Reserved for future logic
 }
 
 export { startSurvey };

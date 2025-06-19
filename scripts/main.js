@@ -1,16 +1,15 @@
-import { handleSurvey, startSurvey } from "./surveyLogic.js";
-import { handleManual } from "./manualLogic.js";
-import { adjustMoney, setMoney } from "./utils.js";
+// main.js — toggles modes and delegates to respective logic handlers
 
-// DOM references
-const surveyBtn = document.querySelector('.survey-toggle');
-const manualBtn = document.querySelector('.manual-toggle');
+import { handleSurvey, startSurvey } from './surveyLogic.js';
+import { handleManual } from './manualLogic.js';
+import { adjustMoney, setMoney } from './utils.js';
+
+// Mode toggle buttons
+const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');
+const manualBtn = document.querySelector('.mode-btn:nth-child(2)');
 const surveyMode = document.getElementById('survey-mode');
 const manualMode = document.getElementById('manual-mode');
-const startSurveyBtn = document.querySelector('.reset-btn'); // Inside survey section
-const moneyButtons = document.querySelectorAll('.money-btn');
 
-// Switch between modes
 function setMode(mode) {
   if (mode === 'survey') {
     surveyMode.classList.add('active');
@@ -25,23 +24,12 @@ function setMode(mode) {
   }
 }
 
-//  Hook up mode switch buttons
-surveyBtn.addEventListener('click', () => setMode('survey'));
-manualBtn.addEventListener('click', () => setMode('manual'));
+// Expose global references for inline HTML usage
+window.startSurvey = startSurvey;
+window.setMode = setMode;
+window.adjustMoney = adjustMoney;
+window.setMoney = setMoney;
 
-//  Hook up Start Survey button
-startSurveyBtn.addEventListener('click', startSurvey);
-
-//  Hook up money controls in manual input mode
-moneyButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const adjust = btn.getAttribute('data-adjust');
-    const set = btn.getAttribute('data-set');
-    if (adjust) adjustMoney(parseInt(adjust));
-    if (set) setMoney(parseInt(set));
-  });
-});
-
-// Initialize logic for both modes
+// Initialize logic handlers
 handleSurvey();
 handleManual();

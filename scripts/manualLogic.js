@@ -1,31 +1,22 @@
-import { calculateSuggestion } from './utils.js';
+// manualLogic.js
+import { calculateSuggestion, parseNumber } from './utils.js';
+import { determineSituation } from './urgencyStrategy.js';
 
 export function handleManual() {
   const form = document.getElementById('econ-form');
   const resultBox = document.getElementById('manual-result');
-  const moneyInput = document.getElementById('money');
 
-  // Handle form submission
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    const money = parseNumber(document.getElementById('money').value, 0);
+    const side = document.getElementById('side').value;
+    const loss_streak = parseNumber(document.getElementById('loss_streak').value, 0);
+    const ctScore = parseNumber(document.getElementById('ct_score').value, 0);
+    const tScore = parseNumber(document.getElementById('t_score').value, 0);
+    const situation = determineSituation(ctScore, tScore);
 
-    // Parse integer fields
-    data.money = parseInt(data.money);
-    data.loss_streak = parseInt(data.loss_streak);
-    data.ct_score = parseInt(data.ct_score);
-    data.t_score = parseInt(data.t_score);
-
-    // Determine round urgency
-    if (data.ct_score === 13 || data.t_score === 13) {
-      data.situation = 'match_point';
-    } else if (Math.abs(data.ct_score - data.t_score) >= 4) {
-      data.situation = 'must_win';
-    } else {
-      data.situation = 'normal';
-    }
+    const data = { money, side, loss_streak, situation };
 
     const suggestion = calculateSuggestion(data);
 
@@ -38,13 +29,4 @@ export function handleManual() {
     `;
     resultBox.style.display = 'block';
   });
-
-  // Utility button functions
-  window.adjustMoney = function (amount) {
-    moneyInput.value = parseInt(moneyInput.value || 0) + amount;
-  };
-
-  window.setMoney = function (amount) {
-    moneyInput.value = amount;
-  };
 }
