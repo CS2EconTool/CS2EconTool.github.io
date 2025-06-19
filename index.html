@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CS2 Economy Helper</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,10 +14,11 @@
     </div>
 
     <div class="mode-selector">
-      <button class="mode-btn survey-toggle active"><span>Quick Survey</span></button>
-      <button class="mode-btn manual-toggle"><span>Manual Input</span></button>
+      <button class="mode-btn active" onclick="setMode('survey')"><span>Quick Survey</span></button>
+      <button class="mode-btn" onclick="setMode('manual')"><span>Manual Input</span></button>
     </div>
 
+    <!-- Survey Mode -->
     <div id="survey-mode" class="survey-mode active">
       <div class="progress-container">
         <div class="progress-label">Progress</div>
@@ -26,12 +27,13 @@
       <div class="question-container" id="question-container">
         <div class="question" id="question-text">Click "Start Round" to begin</div>
         <div class="quick-options" id="quick-options">
-          <button class="quick-btn reset-btn">Start Round</button>
+          <button class="quick-btn reset-btn" onclick="startSurvey()">Start Round</button>
         </div>
       </div>
       <div id="survey-result" class="result-section" style="display: none;"></div>
     </div>
 
+    <!-- Manual Mode -->
     <div id="manual-mode" class="manual-mode">
       <form id="econ-form">
         <div class="form-group">
@@ -45,10 +47,10 @@
           <label for="money">Current Money:</label>
           <input type="number" name="money" id="money" value="2500" />
           <div class="money-controls">
-            <button type="button" class="money-btn" data-adjust="200">+200</button>
-            <button type="button" class="money-btn" data-adjust="500">+500</button>
-            <button type="button" class="money-btn" data-adjust="1000">+1000</button>
-            <button type="button" class="money-btn" data-set="16000">Max</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(200)">+200</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(500)">+500</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(1000)">+1000</button>
+            <button type="button" class="money-btn" onclick="setMoney(16000)">Max</button>
           </div>
         </div>
         <div class="form-group">
@@ -78,7 +80,7 @@
     </div>
   </div>
 
-  <!-- JavaScript entry point -->
-  <script type="module" src="scripts/main.js"></script>
+  <!-- Main JavaScript module -->
+  <script type="module" src="./scripts/main.js"></script>
 </body>
 </html>
