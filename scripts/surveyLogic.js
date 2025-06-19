@@ -95,14 +95,6 @@ window.answerSurvey = function (type, value) {
   renderQuestion();
 };
 
-export function startSurvey() {
-  surveyData = {};
-  currentQuestionIndex = 0;
-  document.getElementById('survey-result').style.display = 'none';
-  document.getElementById('question-container').style.display = 'flex';
-  renderQuestion();
-}
-
 function showSurveyResult() {
   const suggestion = calculateSuggestion(surveyData);
   const resultBox = document.getElementById('survey-result');
@@ -129,3 +121,9 @@ window.resetSurvey = function () {
   document.getElementById('progress-fill').style.width = '0%';
   renderQuestion();
 };
+
+export function handleSurvey() {
+  // Reserved for future setup logic if needed
+}
+
+export { startSurvey };
