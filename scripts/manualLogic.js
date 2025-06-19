@@ -1,4 +1,4 @@
-import { calculateSuggestion } from './utils.js';
+import { calculateSuggestion } from 'scripts/utils.js';
 
 export function handleManual() {
   const form = document.getElementById('econ-form');
