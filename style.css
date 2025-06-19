@@ -1,0 +1,89 @@
+
+/* Base Styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f9f9f9;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.mode-btn {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background: #ddd;
+  font-weight: bold;
+}
+
+.mode-btn.active {
+  background: #4caf50;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+button[type="submit"],
+button[type="button"] {
+  margin-top: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#survey-mode,
+#manual-mode {
+  display: none;
+}
+
+#survey-mode.active,
+#manual-mode.active {
+  display: block;
+}
+
+#progress-bar {
+  width: 100%;
+  background: #ccc;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+#progress-fill {
+  height: 100%;
+  background: #4caf50;
+  width: 0%;
+  transition: width 0.3s ease;
+}
