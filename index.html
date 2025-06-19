@@ -1,89 +1,84 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CS2 Economy Helper</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>CS2 Economy Helper</h1>
-
-    <div class="mode-toggle">
-      <button class="mode-btn active" onclick="setMode('survey')">Quick Survey Mode</button>
-      <button class="mode-btn" onclick="setMode('manual')">Manual Input Mode</button>
+    <div class="header">
+      <h1>CS2 Fast Economy Helper</h1>
+      <div class="subtitle">Economy Assistant</div>
     </div>
 
-    <div class="survey-mode active" id="survey-mode">
-      <div id="progress-bar"><div id="progress-fill"></div></div>
-      <div id="question-container">
-        <p id="question-text"></p>
-        <div id="quick-options"></div>
+    <div class="mode-selector">
+      <button class="mode-btn active" onclick="setMode('survey')"><span>Quick Survey</span></button>
+      <button class="mode-btn" onclick="setMode('manual')"><span>Manual Input</span></button>
+    </div>
+
+    <div id="survey-mode" class="survey-mode active">
+      <div class="progress-container">
+        <div class="progress-label">Progress</div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
-      <div id="survey-result" style="display:none;"></div>
+      <div class="question-container" id="question-container">
+        <div class="question" id="question-text">Click "Start Round" to begin</div>
+        <div class="quick-options" id="quick-options">
+          <button class="quick-btn reset-btn" onclick="startSurvey()">Start Round</button>
+        </div>
+      </div>
+      <div id="survey-result" class="result-section" style="display: none;"></div>
     </div>
 
-    <div class="manual-mode" id="manual-mode">
+    <div id="manual-mode" class="manual-mode">
       <form id="econ-form">
         <div class="form-group">
-          <label for="money">How much money do you have?</label>
-          <input type="number" id="money" name="money" min="0" step="100" value="0" />
-          <button type="button" onclick="adjustMoney(200)">+ $200</button>
-          <button type="button" onclick="adjustMoney(500)">+ $500</button>
-        </div>
-
-        <div class="form-group">
-          <label for="side">Which side are you on?</label>
+          <label for="side">Side:</label>
           <select name="side" id="side">
-            <option value="T">Terrorist</option>
-            <option value="CT">Counter-Terrorist</option>
+            <option value="T">Terrorist (T)</option>
+            <option value="CT">Counter-Terrorist (CT)</option>
           </select>
         </div>
-
         <div class="form-group">
-          <label for="loss_streak">Current Loss Streak (0-3)?</label>
+          <label for="money">Current Money:</label>
+          <input type="number" name="money" id="money" value="2500" />
+          <div class="money-controls">
+            <button type="button" class="money-btn" onclick="adjustMoney(200)">+200</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(500)">+500</button>
+            <button type="button" class="money-btn" onclick="adjustMoney(1000)">+1000</button>
+            <button type="button" class="money-btn" onclick="setMoney(16000)">Max</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="loss_streak">Loss Streak:</label>
           <select name="loss_streak" id="loss_streak">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3+</option>
+            <option value="0">0 Losses</option>
+            <option value="1">1 Loss</option>
+            <option value="2">2 Losses</option>
+            <option value="3">3 Losses</option>
+            <option value="4">4 Losses</option>
+            <option value="5">5+ Losses</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label for="ct_score">CT Team Score</label>
-          <input type="number" name="ct_score" id="ct_score" min="0" max="13" value="0" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ct_score">Score - CT:</label>
+            <input type="number" id="ct_score" name="ct_score" value="0" min="0" max="13"/>
+          </div>
+          <div class="form-group">
+            <label for="t_score">Score - T:</label>
+            <input type="number" id="t_score" name="t_score" value="0" min="0" max="13"/>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label for="t_score">T Team Score</label>
-          <input type="number" name="t_score" id="t_score" min="0" max="13" value="0" />
-        </div>
-
-        <div class="form-group">
-          <label for="last_round">Last Round Outcome</label>
-          <select name="last_round" id="last_round">
-            <option value="we_won_easy">We won easily</option>
-            <option value="we_won_close">We won close</option>
-            <option value="enemy_won_easy">Enemy won easily</option>
-            <option value="enemy_won_close">Enemy won close</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="bomb_planted">Did your team plant the bomb last round? (T side)</label>
-          <input type="checkbox" id="bomb_planted" name="bomb_planted" />
-        </div>
-
-        <button type="submit">Get Suggestion</button>
+        <button type="submit" class="reset-btn">Get Suggestion</button>
       </form>
-
-      <div id="manual-result" style="display:none;"></div>
+      <div id="manual-result" class="result-section" style="display: none;"></div>
     </div>
   </div>
 
+  <!-- JavaScript modules -->
   <script type="module" src="./scripts/main.js"></script>
 </body>
 </html>
