@@ -30,3 +30,14 @@ export function handleManual() {
     resultBox.style.display = 'block';
   });
 }
+
+// ✅ Export these so main.js can register them to window
+export function adjustMoney(amount) {
+  const input = document.getElementById('money');
+  input.value = parseInt(input.value || 0) + amount;
+}
+
+export function setMoney(amount) {
+  const input = document.getElementById('money');
+  input.value = amount;
+}
