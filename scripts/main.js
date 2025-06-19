@@ -1,8 +1,8 @@
 // Main entry point — toggles modes and delegates to respective logic handlers
 
-import { handleSurvey, startSurvey } from "./scripts/surveyLogic.js";
-import { handleManual } from "./scripts/manualLogic.js";
-import { adjustMoney, setMoney } from "./scripts/utils.js";
+import { handleSurvey, startSurvey } from "./surveyLogic.js";
+import { handleManual } from "./manualLogic.js";
+import { adjustMoney, setMoney } from "./utils.js";
 
 // Mode toggle buttons
 const surveyBtn = document.querySelector('.mode-btn:nth-child(1)');

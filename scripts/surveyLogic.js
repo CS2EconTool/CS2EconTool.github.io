@@ -1,4 +1,4 @@
-import { calculateSuggestion } from './scripts/utils.js';
+import { calculateSuggestion } from './utils.js';
 
 let surveyData = {};
 let currentQuestionIndex = 0;
